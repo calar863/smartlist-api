@@ -1,0 +1,14 @@
+node_modules
+
+# Environment variables
+.env
+
+# SQLite database (recreated via `npx prisma migrate dev`)
+prisma/dev.db
+prisma/dev.db-journal
+
+# Generated Prisma client (recreated via `npx prisma generate`)
+/generated/prisma
+
+# Logs
+*.log
