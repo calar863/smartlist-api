@@ -1,0 +1,70 @@
+// Schema relacional da SmartList API
+// Adaptado da especificação da DevShowcase API para o domínio do SmartList:
+//   Profile    -> Usuario
+//   Project    -> Lista (lista de compras)
+//   Technology -> Categoria
+//   Feedback   -> Item
+//
+// Relacionamentos:
+//   Usuario 1:N Lista
+//   Lista   N:N Categoria
+//   Lista   1:N Item
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoEm DateTime @default(now())
+
+  listas Lista[]
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id   Int    @id @default(autoincrement())
+  nome String @unique
+
+  listas Lista[]
+
+  @@map("categorias")
+}
+
+model Lista {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  linkReferencia String?
+  dataCriacao    DateTime @default(now())
+
+  usuarioId Int
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  categorias Categoria[]
+  itens      Item[]
+
+  @@unique([usuarioId, nome])
+  @@map("listas")
+}
+
+model Item {
+  id         Int    @id @default(autoincrement())
+  nome       String
+  quantidade Int    @default(1)
+  categoria  String @default("Outros")
+  status     String @default("pendente")
+
+  listaId Int
+  lista   Lista @relation(fields: [listaId], references: [id], onDelete: Cascade)
+
+  @@map("itens")
+}
