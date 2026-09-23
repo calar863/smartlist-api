@@ -1,0 +1,75 @@
+{
+  "info": {
+    "name": "SmartList API",
+    "description": "Coleção pronta para testar os endpoints da SmartList API (Projeto Integrador).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "usuarioId", "value": "1" },
+    { "key": "categoriaId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "POST /api/usuarios - Cadastrar usuario",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Maria Teste\",\n  \"email\": \"maria@teste.com\",\n  \"senha\": \"senha123\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api", "usuarios"] }
+      }
+    },
+    {
+      "name": "GET /api/usuarios/:id - Buscar usuario por id",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/usuarios/{{usuarioId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "usuarios", "{{usuarioId}}"]
+        }
+      }
+    },
+    {
+      "name": "POST /api/categorias - Cadastrar categoria",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Bebidas\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/categorias", "host": ["{{baseUrl}}"], "path": ["api", "categorias"] }
+      }
+    },
+    {
+      "name": "GET /api/categorias - Listar categorias",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/categorias", "host": ["{{baseUrl}}"], "path": ["api", "categorias"] }
+      }
+    },
+    {
+      "name": "POST /api/listas - Cadastrar lista",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Compras do mes\",\n  \"usuarioId\": {{usuarioId}},\n  \"linkReferencia\": \"https://exemplo.com/receita\",\n  \"categoriaIds\": [{{categoriaId}}]\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/listas", "host": ["{{baseUrl}}"], "path": ["api", "listas"] }
+      }
+    },
+    {
+      "name": "GET /api/listas - Listar listas",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/api/listas", "host": ["{{baseUrl}}"], "path": ["api", "listas"] }
+      }
+    }
+  ]
+}
