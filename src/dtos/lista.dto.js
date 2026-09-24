@@ -19,6 +19,8 @@ function toListaOutput(lista) {
     nome: lista.nome,
     linkReferencia: lista.linkReferencia || null,
     dataCriacao: lista.dataCriacao,
+    notaMedia: lista.notaMedia ?? 0,
+    favoritos: lista.favoritos ?? 0,
     usuario: lista.usuario
       ? { id: lista.usuario.id, nome: lista.usuario.nome }
       : { id: lista.usuarioId },

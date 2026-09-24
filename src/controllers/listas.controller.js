@@ -1,60 +1,58 @@
-const prisma = require("../prisma");
+const listasService = require("../services/listas.service");
 const { listaInputSchema, toListaOutput } = require("../dtos/lista.dto");
+const { listaQuerySchema } = require("../dtos/listaQuery.dto");
+const { avaliacaoInputSchema, toAvaliacaoOutput } = require("../dtos/avaliacao.dto");
+const { BadRequestError } = require("../errors/AppError");
 
-const INCLUDE_RELACOES = {
-  usuario: true,
-  categorias: true,
-  itens: true,
-};
+function parseId(rawId) {
+  const id = Number(rawId);
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new BadRequestError("id inválido.");
+  }
+  return id;
+}
 
 async function criar(req, res) {
   const resultado = listaInputSchema.safeParse(req.body);
   if (!resultado.success) {
-    return res.status(400).json({
-      erro: "Dados inválidos.",
-      detalhes: resultado.error.flatten().fieldErrors,
-    });
+    throw new BadRequestError("Dados inválidos.", resultado.error.flatten().fieldErrors);
   }
 
-  const { nome, usuarioId, linkReferencia, categoriaIds } = resultado.data;
-
-  const usuario = await prisma.usuario.findUnique({ where: { id: usuarioId } });
-  if (!usuario) {
-    return res.status(404).json({ erro: "Usuário não encontrado." });
-  }
-
-  // Ponto de Extensão: nome de lista duplicado para o mesmo usuário.
-  const duplicada = await prisma.lista.findFirst({ where: { usuarioId, nome } });
-  if (duplicada) {
-    return res.status(409).json({ erro: "Você já possui uma lista com esse nome." });
-  }
-
-  if (categoriaIds && categoriaIds.length > 0) {
-    const encontradas = await prisma.categoria.count({ where: { id: { in: categoriaIds } } });
-    if (encontradas !== categoriaIds.length) {
-      return res.status(400).json({ erro: "Uma ou mais categorias informadas não existem." });
-    }
-  }
-
-  const lista = await prisma.lista.create({
-    data: {
-      nome,
-      linkReferencia: linkReferencia || null,
-      usuarioId,
-      categorias: categoriaIds ? { connect: categoriaIds.map((id) => ({ id })) } : undefined,
-    },
-    include: INCLUDE_RELACOES,
-  });
-
+  const lista = await listasService.criar(resultado.data);
   return res.status(201).json(toListaOutput(lista));
 }
 
 async function listar(req, res) {
-  const listas = await prisma.lista.findMany({
-    include: INCLUDE_RELACOES,
-    orderBy: { dataCriacao: "desc" },
+  const resultado = listaQuerySchema.safeParse(req.query);
+  if (!resultado.success) {
+    throw new BadRequestError("Parâmetros de busca inválidos.", resultado.error.flatten().fieldErrors);
+  }
+
+  const { dados, paginacao } = await listasService.listar(resultado.data);
+  return res.json({
+    dados: dados.map(toListaOutput),
+    paginacao,
   });
-  return res.json(listas.map(toListaOutput));
 }
 
-module.exports = { criar, listar };
+// Caso de Uso: Avaliar lista (nota de 1 a 5 + comentário; recalcula a nota média)
+async function avaliar(req, res) {
+  const listaId = parseId(req.params.id);
+
+  const resultado = avaliacaoInputSchema.safeParse(req.body);
+  if (!resultado.success) {
+    throw new BadRequestError("Dados inválidos.", resultado.error.flatten().fieldErrors);
+  }
+
+  const { avaliacao, notaMedia } = await listasService.avaliar(listaId, resultado.data);
+  return res.status(201).json({ ...toAvaliacaoOutput(avaliacao), notaMediaAtualizada: notaMedia });
+}
+
+// Caso de Uso: Favoritar lista (equivalente a Upvote)
+async function favoritar(req, res) {
+  const listaId = parseId(req.params.id);
+  const lista = await listasService.favoritar(listaId);
+  return res.json(toListaOutput(lista));
+}
+
+module.exports = { criar, listar, avaliar, favoritar };

@@ -1,28 +1,19 @@
-const prisma = require("../prisma");
+const categoriasService = require("../services/categorias.service");
 const { categoriaInputSchema, toCategoriaOutput } = require("../dtos/categoria.dto");
+const { BadRequestError } = require("../errors/AppError");
 
 async function criar(req, res) {
   const resultado = categoriaInputSchema.safeParse(req.body);
   if (!resultado.success) {
-    return res.status(400).json({
-      erro: "Dados inválidos.",
-      detalhes: resultado.error.flatten().fieldErrors,
-    });
+    throw new BadRequestError("Dados inválidos.", resultado.error.flatten().fieldErrors);
   }
 
-  const { nome } = resultado.data;
-
-  const existente = await prisma.categoria.findUnique({ where: { nome } });
-  if (existente) {
-    return res.status(409).json({ erro: "Esta categoria já está cadastrada." });
-  }
-
-  const categoria = await prisma.categoria.create({ data: { nome } });
+  const categoria = await categoriasService.cadastrar(resultado.data);
   return res.status(201).json(toCategoriaOutput(categoria));
 }
 
 async function listar(req, res) {
-  const categorias = await prisma.categoria.findMany({ orderBy: { nome: "asc" } });
+  const categorias = await categoriasService.listar();
   return res.json(categorias.map(toCategoriaOutput));
 }
 
