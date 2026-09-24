@@ -1,29 +1,27 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
 
+const openapiSpec = require("./openapi");
 const usuariosRoutes = require("./routes/usuarios.routes");
 const categoriasRoutes = require("./routes/categorias.routes");
 const listasRoutes = require("./routes/listas.routes");
+const { errorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 const app = express();
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ nome: "SmartList API", status: "ok" });
+  res.json({ nome: "SmartList API", status: "ok", docs: "/api-docs" });
 });
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/categorias", categoriasRoutes);
 app.use("/api/listas", listasRoutes);
 
-app.use((req, res) => {
-  res.status(404).json({ erro: "Rota não encontrada." });
-});
-
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ erro: "Erro interno no servidor." });
-});
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;
