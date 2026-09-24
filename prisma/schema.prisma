@@ -3,19 +3,20 @@
 //   Profile    -> Usuario
 //   Project    -> Lista (lista de compras)
 //   Technology -> Categoria
-//   Feedback   -> Item
+//   Feedback   -> Item (etapa 1) e Avaliacao (etapa 3: nota/comentario sobre a lista)
 //
 // Relacionamentos:
 //   Usuario 1:N Lista
 //   Lista   N:N Categoria
 //   Lista   1:N Item
+//   Lista   1:N Avaliacao
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -45,15 +46,30 @@ model Lista {
   nome           String
   linkReferencia String?
   dataCriacao    DateTime @default(now())
+  notaMedia      Float    @default(0)
+  favoritos      Int      @default(0)
 
   usuarioId Int
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
 
   categorias Categoria[]
   itens      Item[]
+  avaliacoes Avaliacao[]
 
   @@unique([usuarioId, nome])
   @@map("listas")
+}
+
+model Avaliacao {
+  id         Int      @id @default(autoincrement())
+  nota       Int
+  comentario String?
+  criadoEm   DateTime @default(now())
+
+  listaId Int
+  lista   Lista @relation(fields: [listaId], references: [id], onDelete: Cascade)
+
+  @@map("avaliacoes")
 }
 
 model Item {
