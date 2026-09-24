@@ -134,24 +134,26 @@ produção: `<URL_DO_DEPLOY>/api-docs`).
    modo **Connection pooling** (recomendada para apps serverless/PaaS).
 4. Essa é a sua `DATABASE_URL`.
 
-### 2. Deploy da API — Render
+### 2. Deploy da API — Railway
 
-1. Crie uma conta em [render.com](https://render.com) e conecte sua conta do
-   GitHub.
-2. **New → Web Service** → selecione o repositório `smartlist-api`.
-3. Configurações:
-   - **Runtime**: Node
-   - **Build Command**: `npm install && npx prisma generate && npx prisma migrate deploy`
-   - **Start Command**: `npm start`
-4. Em **Environment**, adicione a variável `DATABASE_URL` com o valor copiado
-   do Supabase.
-5. Clique em **Create Web Service**. O Render builda e sobe automaticamente a
-   cada push no branch `main` (deploy contínuo).
+1. Crie uma conta em [railway.app](https://railway.app) (dá para logar com o
+   GitHub).
+2. **New Project → Deploy from GitHub repo** → selecione `smartlist-api`.
+3. Railway detecta automaticamente que é um projeto Node.js (via Nixpacks) e
+   usa o script `start` do `package.json`, que já roda
+   `npx prisma migrate deploy` antes de subir o servidor — nenhuma
+   configuração extra de build é necessária.
+4. Em **Variables**, adicione `DATABASE_URL` com o valor copiado do Supabase.
+5. Em **Settings → Networking**, clique em **Generate Domain** para obter a
+   URL pública (ex.: `https://smartlist-api-production.up.railway.app`).
+6. A cada push no branch `main`, o Railway builda e sobe automaticamente
+   (deploy contínuo).
 
-Este repositório também inclui um [`render.yaml`](render.yaml) — no Render,
-use **New → Blueprint** apontando para o repositório para que essas
-configurações sejam aplicadas automaticamente (só a `DATABASE_URL` precisa
-ser preenchida manualmente).
+Este repositório também inclui um [`render.yaml`](render.yaml) como
+alternativa, caso prefiram fazer o deploy no [Render](https://render.com) —
+o passo a passo é equivalente (**New → Web Service** ou **New → Blueprint**),
+mas o Render pode solicitar cadastro de cartão para verificação mesmo no
+plano gratuito.
 
 ## Próximos passos
 
