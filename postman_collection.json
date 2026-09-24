@@ -7,7 +7,8 @@
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
     { "key": "usuarioId", "value": "1" },
-    { "key": "categoriaId", "value": "1" }
+    { "key": "categoriaId", "value": "1" },
+    { "key": "listaId", "value": "1" }
   ],
   "item": [
     {
@@ -69,6 +70,76 @@
       "request": {
         "method": "GET",
         "url": { "raw": "{{baseUrl}}/api/listas", "host": ["{{baseUrl}}"], "path": ["api", "listas"] }
+      }
+    },
+    {
+      "name": "GET /api/listas - Filtrar por categoria + paginacao",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/listas?categoria=Bebidas&page=1&pageSize=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "listas"],
+          "query": [
+            { "key": "categoria", "value": "Bebidas" },
+            { "key": "page", "value": "1" },
+            { "key": "pageSize", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "POST /api/listas/:id/avaliacoes - Avaliar lista",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nota\": 5,\n  \"comentario\": \"Lista muito completa!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/listas/{{listaId}}/avaliacoes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "listas", "{{listaId}}", "avaliacoes"]
+        }
+      }
+    },
+    {
+      "name": "PUT /api/listas/:id/favoritar - Favoritar (upvote)",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{baseUrl}}/api/listas/{{listaId}}/favoritar",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "listas", "{{listaId}}", "favoritar"]
+        }
+      }
+    },
+    {
+      "name": "[ERRO 404] GET /api/usuarios/999999 - usuario inexistente",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/usuarios/999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "usuarios", "999999"]
+        }
+      }
+    },
+    {
+      "name": "[ERRO 400] POST /api/listas/:id/avaliacoes - nota invalida (fora de 1-5)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nota\": 9\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/listas/{{listaId}}/avaliacoes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "listas", "{{listaId}}", "avaliacoes"]
+        }
       }
     }
   ]
